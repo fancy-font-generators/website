@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://fancy-font-generator-b31.pages.dev/sitemap.xml
