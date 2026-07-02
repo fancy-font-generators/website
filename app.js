@@ -280,7 +280,7 @@ function renderFonts(text, category) {
       <span class="font-result-label">${escapeHtml(style.name)}</span>
       <span class="font-result-text" id="result-${idx}">${escapeHtml(converted)}</span>
       <div class="font-result-actions">
-        <button class="btn-copy" onclick="copyFont(${idx},'${escapeAttr(converted)}')" aria-label="Copy ${escapeAttr(style.name)}">Copy</button>
+        <button class="btn-copy" onclick="copyFont(${idx})" aria-label="Copy ${escapeAttr(style.name)}">Copy</button>
       </div>`;
     fragment.appendChild(card);
   });
@@ -297,11 +297,11 @@ function escapeAttr(str) {
   return str.replace(/'/g,'&#39;').replace(/"/g,'&quot;');
 }
 
-function copyFont(idx, text) {
-  // decode HTML entities back to real chars for clipboard
-  const textarea = document.createElement('textarea');
-  textarea.innerHTML = text;
-  const decoded = textarea.value;
+function copyFont(idx) {
+  // Read the rendered text straight from the DOM (avoids inline-arg escaping bugs)
+  const el = document.getElementById(`result-${idx}`);
+  if (!el) return;
+  const decoded = el.textContent;
 
   navigator.clipboard.writeText(decoded).then(() => {
     showToast('✓ Copied to clipboard!');
@@ -313,14 +313,14 @@ function copyFont(idx, text) {
     }
   }).catch(() => {
     // Fallback for older browsers
-    const el = document.createElement('textarea');
-    el.value = decoded;
-    el.style.position = 'fixed';
-    el.style.opacity = '0';
-    document.body.appendChild(el);
-    el.select();
+    const ta = document.createElement('textarea');
+    ta.value = decoded;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
     document.execCommand('copy');
-    document.body.removeChild(el);
+    document.body.removeChild(ta);
     showToast('✓ Copied!');
   });
 }
